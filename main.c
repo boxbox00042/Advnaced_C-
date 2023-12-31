@@ -26,7 +26,7 @@ int main(void)
     while (1)
     {
 
-        print_directory(current,head);
+        print_directory(current, head);
         fgets(input, sizeof(input), stdin);
         int len = strlen(input);
 
@@ -34,8 +34,8 @@ int main(void)
         {
             input[len - 1] = '\0';
         }
-        
-        if(strncmp(input, "mkdir", 5) == 0)
+
+        if (strncmp(input, "mkdir", 5) == 0)
         {
             ret = build_directory(current, ptr, input + 6);
             ptr = (char *)ptr + BLOCK_SIZE;
@@ -43,10 +43,24 @@ int main(void)
             {
                 printf("build failed\n");
             }
-        }else if(strncmp(input, "ls", 2) == 0)
+        }
+        else if (strncmp(input, "ls", 2) == 0)
         {
             list_directory(current);
-        }else if (strncmp(input, "cd", 2) == 0)
+        }
+        else if (strncmp(input, "rmdir", 5) == 0)
+        {
+            ret = delete_directory(current, input + 6);
+            if (ret == -1)
+            {
+                printf("Please delete the things in the folder first\n");
+            }
+            if (ret == -2)
+            {
+                printf("not found directory\n");
+            }
+        }
+        else if (strncmp(input, "cd", 2) == 0)
         {
 
             if (strncmp(input, "cd ..", 5) == 0)
@@ -66,10 +80,12 @@ int main(void)
                 }
                 else
                 {
-                    printf("no directory !\n");
+                    printf("not found directory !\n");
                 }
             }
-        }else{
+        }
+        else
+        {
             printf("no such opreation!\n");
         }
     }

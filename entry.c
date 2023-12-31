@@ -84,6 +84,32 @@ int change_directory(List *list, char *name)
     }
     return -1;
 }
+
+int delete_directory(List *list, char *name)
+{
+    folder *current_folder = (folder *)(list->content);
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (current_folder->entry_array[i] != NULL)
+        {
+            if (strcmp(((folder *)(current_folder->entry_array[i]))->name, name) == 0)
+            {
+                folder *child_folder = (folder *)(current_folder->entry_array[i]);
+                for (int j = 0; j < FOLDER_SIZE; j++)
+                {
+                    if (child_folder->entry_array[j] != NULL)
+                    {
+                        return -1;
+                    }
+                }
+                current_folder->entry_array[i] = NULL;
+                return 0;
+            }
+        }
+    }
+
+    return -2;
+}
 void print_directory(List *last, List *head)
 {
     List *current = head;
