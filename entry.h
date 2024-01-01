@@ -5,6 +5,7 @@ typedef struct type_folder
 {
     int type;
     char name[10];
+    int location;
     struct type_folder *prev;
     void *entry_array[FOLDER_SIZE];
 } folder;
@@ -13,6 +14,7 @@ typedef struct type_file
 {
     int type;
     char name[10];
+    int location;
     int size;
     struct type_folder *prev;
     char *content;
@@ -20,15 +22,15 @@ typedef struct type_file
 
 typedef struct node_info
 {
-    void *content;
     struct node_info *prev;
     struct node_info *next;
+    void *content;
 } List;
-List *createList(void *ptr);
+List *createList();
 
-int build_directory(List *list, void *ptr, char *name);
+int build_directory(List *list, char *name);
 void list_directory(List *list);
-int change_directory(List *list,char *name);
+int change_directory(List *list, char *name);
 int delete_directory(List *list, char *name);
 void print_directory(List *last, List *head);
 

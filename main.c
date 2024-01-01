@@ -11,37 +11,38 @@ int main(void)
     if (ptr == NULL)
     {
         printf("can't allocate memory space !\n ");
-        return 0;
+        return -1;
     }
     else
     {
         printf("partition size = %d\n", size);
     }
-    List *head = createList(ptr);
-    ptr = (char *)ptr + BLOCK_SIZE;
-    char input[20];
-    int ret = 0;
-    List *current = head;
+    manage_space(ptr);
+    int location;
+    int ret;
+    List *head = createList();
 
+    char input[20];
+    List *current = head;
+     
     while (1)
     {
-
+        print_buffer_status();
         print_directory(current, head);
         fgets(input, sizeof(input), stdin);
+         
         int len = strlen(input);
-
-        if (len > 0 && input[len - 1] == '\n')
+   
+       if (len > 0 && input[len - 1] == '\n')
         {
             input[len - 1] = '\0';
         }
-
         if (strncmp(input, "mkdir", 5) == 0)
         {
-            ret = build_directory(current, ptr, input + 6);
-            ptr = (char *)ptr + BLOCK_SIZE;
+            ret = build_directory(current, input + 6);
             if (ret != 0)
             {
-                printf("build failed\n");
+                printf("space full\n");
             }
         }
         else if (strncmp(input, "ls", 2) == 0)
@@ -67,7 +68,9 @@ int main(void)
             {
                 if (current->prev != NULL)
                 {
+
                     current = current->prev;
+                    free(current->next);
                 }
             }
             else
@@ -84,11 +87,15 @@ int main(void)
                 }
             }
         }
+        else if (strncmp(input, "exit", 4) == 0)
+        {
+            break;
+        }
         else
         {
             printf("no such opreation!\n");
         }
     }
-
+    free_total_memory_space();
     return 0;
 }

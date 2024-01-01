@@ -1,31 +1,41 @@
 #include "main.h"
 
-List *createList(void *ptr)
+List *createList()
 {
     List *new_list;
     new_list = (List *)malloc(sizeof(List));
-
+    void *ptr = NULL;
+    int location;
+    our_malloc(1, &ptr, &location);
     if (new_list)
     {
-        folder *root = ptr;
-        root->type = 0;
-        strcpy(root->name, "/");
-        root->prev = NULL;
-        for (int i = 0; i < FOLDER_SIZE; i++)
-        {
-            root->entry_array[i] = NULL;
-        }
-        new_list->content = root;
         new_list->next = NULL;
         new_list->prev = NULL;
+        new_list->content = ptr;
+
+        ((folder *)(ptr))->type = 0;
+        strcpy(((folder *)(ptr))->name, "/");
+        ((folder *)(ptr))->prev = NULL;
+        ((folder *)(ptr))->location = location;
+        for (int i = 0; i < FOLDER_SIZE; i++)
+        {
+            ((folder *)(ptr))->entry_array[i] = NULL;
+        }
     }
 
     return new_list;
 }
-int build_directory(List *list, void *ptr, char *name)
+int build_directory(List *list, char *name)
 {
-    List *node = (List *)malloc(sizeof(List));
+    void *ptr = NULL;
+    int location;
+    our_malloc(1, &ptr, &location);
+    if (ptr == NULL)
+    {
+        return -1;
+    }
     folder *p = ptr;
+    p->location = location;
     p->type = 0;
     strcpy(p->name, name);
     for (int i = 0; i < FOLDER_SIZE; i++)
@@ -33,10 +43,7 @@ int build_directory(List *list, void *ptr, char *name)
         p->entry_array[i] = NULL;
     }
     p->prev = ((folder *)(list->content));
-    node->content = p;
-    node->next = NULL;
-    node->prev = list;
-    list->next = node;
+
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
         if (((folder *)(list->content))->entry_array[i] == NULL)
@@ -56,6 +63,7 @@ void list_directory(List *list)
         if (((folder *)(list->content))->entry_array[i] != NULL)
         {
             flag++;
+
             printf(BLU "%s " RESET, ((folder *)((folder *)(list->content))->entry_array[i])->name);
         }
     }
@@ -102,6 +110,7 @@ int delete_directory(List *list, char *name)
                         return -1;
                     }
                 }
+                our_free(1, ((folder *)(current_folder->entry_array[i]))->location);
                 current_folder->entry_array[i] = NULL;
                 return 0;
             }
