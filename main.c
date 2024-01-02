@@ -16,6 +16,7 @@ int main(void)
     else
     {
         printf("partition size = %d\n", size);
+        printf("\nMake new partition successful !\n");
     }
     manage_space(ptr);
     int location;
@@ -25,9 +26,11 @@ int main(void)
     char input[20];
     List *current = head;
 
+    help_information();
     while (1)
     {
-        print_buffer_status();
+        //  print_buffer_status();
+
         print_directory(current, head);
         fgets(input, sizeof(input), stdin);
 
@@ -89,6 +92,7 @@ int main(void)
         }
         else if (strncmp(input, "put", 3) == 0)
         {
+
             ret = put_file(current, input + 4);
             if (ret == -1)
             {
@@ -102,7 +106,11 @@ int main(void)
 
         else if (strncmp(input, "cat", 3) == 0)
         {
-            show_content(current, input + 4);
+            ret = show_content(current, input + 4);
+            if (ret != 0)
+            {
+                printf("not found file\n");
+            }
         }
         else if (strncmp(input, "rm", 2) == 0)
         {
@@ -112,7 +120,15 @@ int main(void)
                 printf("not found file\n");
             }
         }
-        else if (strncmp(input, "exit", 4) == 0)
+        else if (strcmp(input, "help") == 0)
+        {
+            help_information();
+        }
+        else if (strcmp(input, "status") == 0)
+        {
+            status_information(size);
+        }
+        else if (strcmp(input, "exit and store img") == 0)
         {
             break;
         }

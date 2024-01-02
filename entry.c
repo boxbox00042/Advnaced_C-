@@ -67,8 +67,16 @@ void list_directory(List *list)
             {
                 printf(BLU "%s " RESET, ((folder *)((folder *)(list->content))->entry_array[i])->name);
             }
-            else
+        }
+    }
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (((folder *)(list->content))->entry_array[i] != NULL)
+        {
+            flag++;
+            if (((folder *)((folder *)(list->content))->entry_array[i])->type == 1)
             {
+
                 printf("%s ", ((file *)((folder *)(list->content))->entry_array[i])->name);
             }
         }
@@ -152,16 +160,17 @@ void print_directory(List *last, List *head)
     printf(" $ ");
 }
 
-int remove_file(List *list, char *name){
+int remove_file(List *list, char *name)
+{
 
-  folder *current_folder = (folder *)(list->content);
+    folder *current_folder = (folder *)(list->content);
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
         if (current_folder->entry_array[i] != NULL)
         {
             if (strcmp(((folder *)(current_folder->entry_array[i]))->name, name) == 0 && ((file *)(current_folder->entry_array[i]))->type == 1)
             {
-                
+
                 our_free(5, ((file *)(current_folder->entry_array[i]))->location);
                 current_folder->entry_array[i] = NULL;
                 return 0;
@@ -174,21 +183,20 @@ int remove_file(List *list, char *name){
 
 int put_file(List *list, char *file_name) // location跟size跟prev
 {
-
-    char whole_filepath[1024];
-    sprintf(whole_filepath, "%s%s", "./", file_name);
-
     folder *current_folder = (folder *)(list->content);
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
-        if (current_folder->entry_array[i] != NULL &&
-            strcmp(((file *)(current_folder->entry_array[i]))->name, file_name) == 0)
+        if (current_folder->entry_array[i] != NULL)
         {
+            if (strcmp(((folder *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((folder *)(current_folder->entry_array[i]))->type == 1)
+            {
 
-            return -2;
+                return -2;
+            }
         }
     }
-
+    char whole_filepath[20];
+    snprintf(whole_filepath, sizeof(whole_filepath), "./%s", file_name);
     FILE *fp = fopen(whole_filepath, "r");
     if (fp == NULL)
     {
@@ -196,25 +204,25 @@ int put_file(List *list, char *file_name) // location跟size跟prev
         return -3;
     }
 
-    fseek(fp, 0, SEEK_END);
-    long fsize = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
     void *ptr = NULL;
     int location;
     our_malloc(5, &ptr, &location);
     if (ptr == NULL)
     {
+        fclose(fp);
         return -1;
     }
-    file *new_file = ptr;
-    new_file->content = ptr;
-    new_file->type = 1;
-    fclose(fp);
-    new_file->content[fsize] = 0; // 確保字符串結尾
-    new_file->size = fsize;
+
+    file *new_file = (file *)ptr;
     strcpy(new_file->name, file_name);
     new_file->location = location;
     new_file->prev = current_folder;
+    new_file->type = 1;
+    fseek(fp, 0, SEEK_END);
+    long fsize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    fread(new_file->content, fsize + 1, 1, fp);
+    fclose(fp);
 
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
@@ -231,40 +239,44 @@ int put_file(List *list, char *file_name) // location跟size跟prev
 int show_content(List *list, char *file_name)
 {
     folder *current_folder = (folder *)(list->content);
-    int file_found = 0;
-    char whole_filepath[1024];
-    sprintf(whole_filepath, "%s%s", ".\\", file_name);
-    char buffer[1024];
-
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
-        if (current_folder->entry_array[i] != NULL &&
-            strcmp(((file *)(current_folder->entry_array[i]))->name, file_name) == 0)
+        if (current_folder->entry_array[i] != NULL)
         {
-            file_found = 1;
-            break;
+            if (strcmp(((file *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((file *)(current_folder->entry_array[i]))->type == 1)
+            {
+                printf("%s\n", ((file *)(current_folder->entry_array[i]))->content);
+                return 0;
+            }
         }
     }
 
-    if (!file_found)
-    {
-        printf("File not found in the directory.\n");
-        return -1;
-    }
+    return -1;
+}
 
-    FILE *fp = fopen(whole_filepath, "r");
-    if (fp == NULL)
-    {
-        perror("Failed to open file");
-        return -1;
-    }
+void help_information()
+{
 
-    while (fgets(buffer, sizeof(buffer), fp) != NULL)
-    {
-        printf("%s", buffer);
-    }
-    printf("\n");
-    fclose(fp);
+    printf("List of commands\n");
+    printf("'ls' list directory\n");
+    printf("'cd' change directory\n");
+    printf("'rm' remove\n");
+    printf("'mkdir' make directory\n");
+    printf("'rmdir' remove directory\n");
+    printf("'put' put file into the space\n");
+    printf("'get' get file from the space\n");
+    printf("'cat' show content\n");
+    printf("'status' show status of the space\n");
+    printf("'help'\n");
+    printf("'exit and store img'\n");
+}
 
-    return 0;
+void status_information(int size)
+{
+    printf("partition size: %d\n", size);
+    printf("total blocks:   %d\n", size / BLOCK_SIZE);
+    printf("used blocks:    %d\n", used_block());
+    printf("block size:     %d\n",BLOCK_SIZE);
+    printf("free space:     %d\n",size- (used_block()*BLOCK_SIZE));
+
 }

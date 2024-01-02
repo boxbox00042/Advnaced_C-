@@ -1,16 +1,44 @@
 #include "main.h"
 
-//unsigned char buffer[ELEMENT_SIZE * NUM_BYTE_BUF];
-//unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
+// unsigned char buffer[ELEMENT_SIZE * NUM_BYTE_BUF];
+// unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
 
 unsigned char *buffer;
 unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
-void manage_space(void * ptr)
+void manage_space(void *ptr)
 {
+
     buffer = ptr;
 };
-void free_total_memory_space(){
+void free_total_memory_space()
+{
     free(buffer);
+}
+int used_block()
+{
+    int i, j, total = 0;
+    unsigned char mask = 0x80;
+
+    for (i = CEIL_DIVIDE - 1; i >= 0; i--)
+    {
+
+        for (j = 7; j >= 0; j--)
+        {
+
+            if ((i * 8 + j + 1) <= NUM_BYTE_BUF)
+            {
+                if ((byte_buf_mask[i] & mask) >> (j) == 1)
+                {
+                    total++;
+                }
+            }
+            mask = mask >> 1;
+        }
+
+        mask = 0x80;
+    }
+
+    return total;
 }
 void print_buffer_status(void)
 {
