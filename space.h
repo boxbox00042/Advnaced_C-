@@ -1,7 +1,7 @@
 #ifndef __SPACE__
 #define __SPACE__
 
-#define NUM_BYTE_BUF 4
+#define NUM_BYTE_BUF 11
 #define CEIL_DIVIDE ((NUM_BYTE_BUF % 8 == 0) ? (NUM_BYTE_BUF / 8) : (NUM_BYTE_BUF / 8 + 1))
 #define ELEMENT_SIZE 1024
 

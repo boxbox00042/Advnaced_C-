@@ -24,16 +24,16 @@ int main(void)
 
     char input[20];
     List *current = head;
-     
+
     while (1)
     {
         print_buffer_status();
         print_directory(current, head);
         fgets(input, sizeof(input), stdin);
-         
+
         int len = strlen(input);
-   
-       if (len > 0 && input[len - 1] == '\n')
+
+        if (len > 0 && input[len - 1] == '\n')
         {
             input[len - 1] = '\0';
         }
@@ -85,6 +85,31 @@ int main(void)
                 {
                     printf("not found directory !\n");
                 }
+            }
+        }
+        else if (strncmp(input, "put", 3) == 0)
+        {
+            ret = put_file(current, input + 4);
+            if (ret == -1)
+            {
+                printf("No Space\n");
+            }
+            else if (ret == -2)
+            {
+                printf("File already exists.\n");
+            }
+        }
+
+        else if (strncmp(input, "cat", 3) == 0)
+        {
+            show_content(current, input + 4);
+        }
+        else if (strncmp(input, "rm", 2) == 0)
+        {
+            ret = remove_file(current, input + 3);
+            if (ret == -2)
+            {
+                printf("not found file\n");
             }
         }
         else if (strncmp(input, "exit", 4) == 0)

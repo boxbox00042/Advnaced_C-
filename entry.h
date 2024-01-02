@@ -28,10 +28,15 @@ typedef struct node_info
 } List;
 List *createList();
 
+
 int build_directory(List *list, char *name);
 void list_directory(List *list);
 int change_directory(List *list, char *name);
 int delete_directory(List *list, char *name);
 void print_directory(List *last, List *head);
+int remove_file(List *list, char *file_name);
+int put_file(List *list, char *file_name);
+int show_content(List *list, char *file_name);
+
 
 #endif
