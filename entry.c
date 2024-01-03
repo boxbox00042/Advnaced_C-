@@ -1,4 +1,5 @@
 #include "main.h"
+#include <sys/stat.h>
 
 List *createList()
 {
@@ -234,6 +235,39 @@ int put_file(List *list, char *file_name) // location跟size跟prev
     }
 
     return 0;
+}
+
+int get_file(List *list, char *file_name){
+    folder *current_folder = (folder *)(list->content);
+    file *target_file;
+    int file_exists = 0;
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (current_folder->entry_array[i] != NULL)
+        {
+            if (strcmp(((folder *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((folder *)(current_folder->entry_array[i]))->type == 1)
+            {
+                file_exists = 1;
+                target_file = ((file *)(current_folder->entry_array[i]));
+            }
+        }
+    }
+    if(!file_exists) return -1;
+
+    struct stat st;
+    if (stat("./dump", &st) == -1) 
+    {
+        mkdir("./dump", 0700);
+    }
+
+    FILE * output_file;
+    char whole_filepath[20];
+    sprintf(whole_filepath, "./dump/%s", file_name);
+
+    output_file = fopen(whole_filepath, "w");
+    fwrite(target_file->content, sizeof(char), sizeof(target_file->content), output_file);
+
+    fclose(output_file);
 }
 
 int show_content(List *list, char *file_name)
