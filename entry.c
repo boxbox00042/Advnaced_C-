@@ -1,5 +1,4 @@
 #include "main.h"
-#include <sys/stat.h>
 
 List *createList()
 {
@@ -222,7 +221,7 @@ int put_file(List *list, char *file_name) // location跟size跟prev
     fseek(fp, 0, SEEK_END);
     long fsize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    fread(new_file->content, fsize + 1, 1, fp);
+    fread(new_file->content, fsize , 1, fp);
     fclose(fp);
 
     for (int i = 0; i < FOLDER_SIZE; i++)
@@ -253,12 +252,6 @@ int get_file(List *list, char *file_name){
         }
     }
     if(!file_exists) return -1;
-
-    struct stat st;
-    if (stat("./dump", &st) == -1) 
-    {
-        mkdir("./dump", 0700);
-    }
 
     FILE * output_file;
     char whole_filepath[20];
