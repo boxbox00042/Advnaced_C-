@@ -92,7 +92,6 @@ int main(void)
         }
         else if (strncmp(input, "put", 3) == 0)
         {
-
             ret = put_file(current, input + 4);
             if (ret == -1)
             {
@@ -101,6 +100,22 @@ int main(void)
             else if (ret == -2)
             {
                 printf("File already exists.\n");
+            }
+        }
+        else if (strncmp(input, "get", 3) == 0)
+        {
+            ret = get_file(current, input + 4);
+            if (ret == -1)
+            {
+                printf("File do not exists.\n");
+            }
+        }
+        else if (strncmp(input, "get", 3) == 0)
+        {
+            ret = get_file(current, input + 4);
+            if (ret == -1)
+            {
+                printf("File do not exists.\n");
             }
         }
 

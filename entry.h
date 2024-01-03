@@ -34,6 +34,7 @@ int delete_directory(List *list, char *name);
 void print_directory(List *last, List *head);
 int remove_file(List *list, char *file_name);
 int put_file(List *list, char *file_name);
+int get_file(List *list, char *file_name);
 int show_content(List *list, char *file_name);
 void help_information();
 void status_information(int size);
