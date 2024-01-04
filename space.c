@@ -4,12 +4,150 @@
 // unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
 
 unsigned char *buffer;
-unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
-void manage_space(void *ptr)
+int NUM_BYTE_BUF;
+int CEIL_DIVIDE;
+unsigned char *byte_buf_mask;
+
+void dump_manage_space(void *ptr, int size)
+{
+    buffer = ptr;
+    NUM_BYTE_BUF = size / ELEMENT_SIZE;
+    if (NUM_BYTE_BUF % 8 == 0)
+    {
+        CEIL_DIVIDE = NUM_BYTE_BUF / 8;
+    }
+    else
+    {
+        CEIL_DIVIDE = NUM_BYTE_BUF / 8 + 1;
+    }
+    byte_buf_mask = buffer;
+}
+void change_element_offset(int size, int flag, int offset)
+{
+    unsigned char set_bit = 0x01;
+    int i, j;
+    set_bit = set_bit << 2;
+    i = 2;
+    while (i < NUM_BYTE_BUF)
+    {
+
+        j = i / 8;
+        if (((i - 8) % 8 == 0))
+        {
+            set_bit = 0x01;
+        }
+
+        if (byte_buf_mask[j] | set_bit)
+        {
+
+            void *ptr = buffer + (i * BLOCK_SIZE);
+            if (((folder *)(ptr))->type == 0)
+            {
+                if (((folder *)(ptr))->prev != NULL)
+                {
+                    if (flag == 0)
+                    {
+
+                        folder *entry = ((folder *)(ptr))->prev;
+                        entry = (folder *)((long long)entry - offset);
+                        ((folder *)(ptr))->prev = entry;
+                    }
+                    else
+                    {
+
+                        folder *entry = ((folder *)(ptr))->prev;
+                        entry = (folder *)((long long)entry + offset);
+                        ((folder *)(ptr))->prev = entry;
+                    }
+                }
+                for (int k = 0; k < FOLDER_SIZE; k++)
+                {
+                    if (((folder *)(ptr))->entry_array[k] != NULL)
+                    {
+                        if (flag == 0)
+                        {
+                            folder *entry = ((folder *)(ptr))->entry_array[k];
+                            entry = (folder *)((long long)entry - offset);
+                            ((folder *)(ptr))->entry_array[k] = entry;
+                        }
+                        else
+                        {
+                            folder *entry = ((folder *)(ptr))->entry_array[k];
+                            entry = (folder *)((long long)entry + offset);
+                            ((folder *)(ptr))->entry_array[k] = entry;
+                        }
+                    }
+                }
+                i++;
+                set_bit = set_bit << 1;
+                continue;
+            }
+            if (((folder *)(ptr))->type == 1)
+            {
+                if (flag == 0)
+                {
+                    folder *entry = ((file *)(ptr))->prev;
+                    entry = (folder *)((long long)entry - offset);
+                    ((file *)(ptr))->prev = entry;
+                }
+                else
+                {
+
+                    folder *entry = ((file *)(ptr))->prev;
+                    entry = (folder *)((long long)entry + offset);
+                    ((file *)(ptr))->prev = entry;
+                }
+
+                i++;
+                set_bit = set_bit << 1;
+                continue;
+            }
+        };
+        i++;
+        set_bit = set_bit << 1;
+    }
+};
+void manage_space(void *ptr, int size)
+{
+    buffer = ptr;
+    NUM_BYTE_BUF = size / ELEMENT_SIZE;
+    if (NUM_BYTE_BUF % 8 == 0)
+    {
+        CEIL_DIVIDE = NUM_BYTE_BUF / 8;
+    }
+    else
+    {
+        CEIL_DIVIDE = NUM_BYTE_BUF / 8 + 1;
+    }
+
+    byte_buf_mask = buffer;
+    for (int i = 0; i < CEIL_DIVIDE; i++)
+    {
+        byte_buf_mask[i] = 0;
+    }
+    void *null_ptr = NULL;
+    int location = 0;
+    our_malloc(0, &null_ptr, &location);
+};
+
+void put_dump_metadata_space(int size)
 {
 
-    buffer = ptr;
-};
+    void *data = buffer + BLOCK_SIZE;
+    ((meta_data*)(data))->head_ptr = (long long)buffer;
+    ((meta_data*)(data))->size = size;
+}
+void put_metadata_space(int size)
+{
+
+    void *ptr = NULL;
+    int location;
+    our_malloc(1, &ptr, &location);
+    meta_data *data = ptr;
+    data->head_ptr = (long long)buffer;
+    data->size = size;
+    strcpy(data->password, "happyYuko123");
+}
 void free_total_memory_space()
 {
     free(buffer);
@@ -68,8 +206,17 @@ void print_buffer_status(void)
 void our_malloc(int type, void **target, int *mem_location)
 {
     int location;
-
-    location = test_location(byte_buf_mask, type);
+    if (type == 0)
+    {
+        type = 1;
+        location = 0;
+        set_bit(byte_buf_mask, location, type);
+        return;
+    }
+    else
+    {
+        location = test_location(byte_buf_mask, type);
+    }
     if (location >= 0)
     {
         set_bit(byte_buf_mask, location, type);
@@ -156,4 +303,62 @@ void our_free(int type, int mem_location)
 {
 
     clear_bit(byte_buf_mask, mem_location, type);
+}
+void EncryptDecryptContent(unsigned char *content, const unsigned char *password)
+{
+    // input parameter: 1. the content to be translated 2. password
+    // use the encryption algorithm to encrypt content
+    // encryption algorithm : use XOR ( every content ^ password character by order )
+    int content_length = strlen(content);
+    int password_length = strlen(password);
+    int i = 0;
+
+    for (int j = 0; j < content_length; j++)
+    {
+        content[j] = content[j] ^ password[i % password_length];
+        i++;
+    }
+}
+void exitAndStore(int size)
+{
+    const char *password = "happyYuko123"; // test password
+    FILE *dump;
+    dump = fopen("my_fs.dump", "wb");
+    // EncryptDecryptContent(buffer, password);
+    fwrite(buffer, sizeof(unsigned char), size, dump);
+    // printf("%p\n", buffer);
+    // printf("%p\n",buffer+1024);
+    fclose(dump);
+}
+
+unsigned char *loadDump()
+{
+    // get user input password
+    // if password is correct
+    // retrieve size info from the dump file
+    // fatch the File and decrypt the content
+    // return file system pointer (void *)
+    const char *password = "happyYuko123"; // test password
+    if (!password)
+    { // Need to retrieve from the dump file
+        printf("password is not correct!");
+        return NULL;
+    }
+
+    FILE *dump;
+    dump = fopen("my_fs.dump", "rb");
+    if (dump == NULL)
+    {
+        printf("File system file not found!");
+        return NULL;
+    }
+    size_t size = 102400; // Need to retrieve from the dump file
+
+    char *fs_ptr = malloc(size);
+    fread(fs_ptr, sizeof(unsigned char), size, dump);
+
+    //  EncryptDecryptContent(fs_ptr, password);
+    buffer = fs_ptr;
+    fclose(dump);
+    return buffer;
 }

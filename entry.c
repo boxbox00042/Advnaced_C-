@@ -25,6 +25,38 @@ List *createList()
 
     return new_list;
 }
+List *createDumpFileList(unsigned char *p, long long offset, int flag)
+{
+    List *new_list;
+    new_list = (List *)malloc(sizeof(List));
+
+    if (new_list)
+    {
+        new_list->prev = NULL;
+        new_list->next = NULL;
+        new_list->content = p + (2 * BLOCK_SIZE);
+      /*  for (int i = 0; i < FOLDER_SIZE; i++)
+        {
+            if (((folder *)(new_list->content))->entry_array[i] != NULL)
+            {
+                if (flag == 0)
+                {
+                    folder *entry = ((folder *)(new_list->content))->entry_array[i];
+                    entry = (folder *)((long long)entry - offset);
+                    ((folder *)(new_list->content))->entry_array[i] = entry;
+                }
+                else
+                {
+                    folder *entry = ((folder *)(new_list->content))->entry_array[i];
+                    entry = (folder *)((long long)entry + offset);
+                    ((folder *)(new_list->content))->entry_array[i] = entry;
+                }
+            }
+        }*/
+    }
+
+    return new_list;
+}
 int build_directory(List *list, char *name)
 {
     void *ptr = NULL;
@@ -221,7 +253,7 @@ int put_file(List *list, char *file_name) // location跟size跟prev
     fseek(fp, 0, SEEK_END);
     long fsize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    fread(new_file->content, fsize , 1, fp);
+    fread(new_file->content, fsize, 1, fp);
     fclose(fp);
 
     for (int i = 0; i < FOLDER_SIZE; i++)
@@ -236,7 +268,8 @@ int put_file(List *list, char *file_name) // location跟size跟prev
     return 0;
 }
 
-int get_file(List *list, char *file_name){
+int get_file(List *list, char *file_name)
+{
     folder *current_folder = (folder *)(list->content);
     file *target_file;
     int file_exists = 0;
@@ -251,9 +284,10 @@ int get_file(List *list, char *file_name){
             }
         }
     }
-    if(!file_exists) return -1;
+    if (!file_exists)
+        return -1;
 
-    FILE * output_file;
+    FILE *output_file;
     char whole_filepath[20];
     sprintf(whole_filepath, "./dump/%s", file_name);
 
@@ -303,7 +337,6 @@ void status_information(int size)
     printf("partition size: %d\n", size);
     printf("total blocks:   %d\n", size / BLOCK_SIZE);
     printf("used blocks:    %d\n", used_block());
-    printf("block size:     %d\n",BLOCK_SIZE);
-    printf("free space:     %d\n",size- (used_block()*BLOCK_SIZE));
-
+    printf("block size:     %d\n", BLOCK_SIZE);
+    printf("free space:     %d\n", size - (used_block() * BLOCK_SIZE));
 }

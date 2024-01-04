@@ -18,7 +18,12 @@ typedef struct type_file
     struct type_folder *prev;
     char content[BLOCK_SIZE * 4];
 } file;
-
+typedef struct meta
+{
+    long long head_ptr;
+    int size;
+    char password[20];
+} meta_data;
 typedef struct node_info
 {
     struct node_info *prev;
@@ -38,4 +43,5 @@ int get_file(List *list, char *file_name);
 int show_content(List *list, char *file_name);
 void help_information();
 void status_information(int size);
+List *createDumpFileList(unsigned char *p,long long offset,int flag);
 #endif
