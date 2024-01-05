@@ -44,4 +44,7 @@ int show_content(List *list, char *file_name);
 void help_information();
 void status_information(int size);
 List *createDumpFileList(unsigned char *p,long long offset,int flag);
+int create_file(List *list, char *file_name);
+int edit_file(List *list, char *file_name);
+
 #endif

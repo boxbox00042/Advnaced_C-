@@ -206,6 +206,26 @@ int main(void)
             exitAndStore(size);
             break;
         }
+        else if (strncmp(input, "create", 6) == 0) 
+        {
+            ret = create_file(current, input + 7);
+            if (ret == -1)
+            {
+                printf("No Space\n");
+            }
+            else if (ret == -2)
+            {
+                printf("File already exists.\n");
+            } 
+        }
+        else if (strncmp(input, "edit", 4) == 0) 
+        {
+            ret = edit_file(current, input + 5);
+            if (ret == -1)
+            {
+                printf("File do not exists.\n");
+            }
+        }
         else
         {
             printf("no such opreation!\n");
