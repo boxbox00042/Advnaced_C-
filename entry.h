@@ -46,5 +46,6 @@ void status_information(int size);
 List *createDumpFileList(unsigned char *p,long long offset,int flag);
 int create_file(List *list, char *file_name);
 int edit_file(List *list, char *file_name);
+int rename_file(List *list, char *old_name, char *new_name);
 
 #endif

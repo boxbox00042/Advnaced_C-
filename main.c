@@ -65,7 +65,7 @@ int main(void)
         size = ((meta_data *)(data))->size;
         char load_passwoard[20];
         strcpy(load_passwoard, ((meta_data *)(data))->password);
-        
+
         fs_ptr = realloc(fs_ptr, sizeof(size));
         long long fs_ptr_location = (long long)(fs_ptr);
         long long offset;
@@ -91,12 +91,12 @@ int main(void)
         current = head;
     }
     int ret;
-    char input[20];
+    char input[50];
 
     help_information();
     while (1)
     {
-      //  print_buffer_status();
+        //  print_buffer_status();
 
         print_directory(current, head);
         fgets(input, sizeof(input), stdin);
@@ -201,12 +201,30 @@ int main(void)
         {
             status_information(size);
         }
+        else if (strncmp(input, "rename", 6) == 0) 
+        {
+            char *old_name = strtok(input + 7, " ");
+            char *new_name = strtok(NULL, " ");
+
+            if (old_name == NULL || new_name == NULL)
+            {
+                printf("Invalid command format.\n");
+            }
+            else
+            {
+                ret = rename_file(current, old_name, new_name);
+                if (ret == -1)
+                {
+                    printf("file not found.\n"); 
+                }
+            }
+        }
         else if (strcmp(input, "exit and store img") == 0)
         {
             exitAndStore(size);
             break;
         }
-        else if (strncmp(input, "create", 6) == 0) 
+        else if (strncmp(input, "create", 6) == 0)
         {
             ret = create_file(current, input + 7);
             if (ret == -1)
@@ -216,9 +234,9 @@ int main(void)
             else if (ret == -2)
             {
                 printf("File already exists.\n");
-            } 
+            }
         }
-        else if (strncmp(input, "edit", 4) == 0) 
+        else if (strncmp(input, "edit", 4) == 0)
         {
             ret = edit_file(current, input + 5);
             if (ret == -1)
