@@ -416,3 +416,21 @@ int edit_file(List *list, char *file_name)
     }
     return 0;
 }
+
+int rename_file(List *list, char *old_name, char *new_name)
+{
+    
+        folder *current_folder = (folder *)(list->content);
+        for (int i = 0; i < FOLDER_SIZE; i++)
+        {
+            if (current_folder->entry_array[i] != NULL &&
+                strcmp(((file *)(current_folder->entry_array[i]))->name, old_name) == 0)
+            {
+                strcpy(((file *)(current_folder->entry_array[i]))->name, new_name);
+                return 0; 
+            }
+        }
+
+        return -1;
+    }
+
