@@ -55,9 +55,10 @@ int main(void)
         {
             printf("File system file not found!");
             return 0;
-        }
-        size = 102400; // Need to retrieve from the dump file
-
+        }   
+        fseek(dump, 0, SEEK_END); 
+        size = ftell(dump);  
+        fseek(dump, 0, SEEK_SET);
         unsigned char *fs_ptr = malloc(size);
         fread(fs_ptr, sizeof(unsigned char), size, dump);
         void *data = fs_ptr + BLOCK_SIZE;
@@ -66,7 +67,6 @@ int main(void)
         char load_passwoard[20];
         strcpy(load_passwoard, ((meta_data *)(data))->password);
 
-        fs_ptr = realloc(fs_ptr, sizeof(size));
         long long fs_ptr_location = (long long)(fs_ptr);
         long long offset;
         //  EncryptDecryptContent(sfs_ptr, password);
@@ -201,7 +201,7 @@ int main(void)
         {
             status_information(size);
         }
-        else if (strncmp(input, "rename", 6) == 0) 
+        else if (strncmp(input, "rename", 6) == 0)
         {
             char *old_name = strtok(input + 7, " ");
             char *new_name = strtok(NULL, " ");
@@ -215,7 +215,7 @@ int main(void)
                 ret = rename_file(current, old_name, new_name);
                 if (ret == -1)
                 {
-                    printf("file not found.\n"); 
+                    printf("file not found.\n");
                 }
             }
         }
