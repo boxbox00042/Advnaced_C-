@@ -327,7 +327,8 @@ void help_information()
     printf("'put' put file into the space\n");
     printf("'get' get file from the space\n");
     printf("'create' create file into the space\n");
-    printf("'edit' edit file in the space\n");
+    printf("'edit' edit file content in the space\n");
+    printf("'rename' rename file name in the space\n");
     printf("'cat' show content\n");
     printf("'status' show status of the space\n");
     printf("'help'\n");

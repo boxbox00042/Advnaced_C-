@@ -1,7 +1,7 @@
 #ifndef __MAIN__
 #define __MAIN__
 #define BLOCK_SIZE 1024
-#define FOLDER_SIZE 10
+#define FOLDER_SIZE 100
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
