@@ -66,7 +66,7 @@ int main(void)
         char load_passwoard[20];
         strcpy(load_passwoard, ((meta_data *)(data))->password);
 
-        fs_ptr = realloc(fs_ptr, sizeof(size));
+        fs_ptr = realloc(fs_ptr, size);
         long long fs_ptr_location = (long long)(fs_ptr);
         long long offset;
         //  EncryptDecryptContent(sfs_ptr, password);
