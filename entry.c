@@ -326,6 +326,8 @@ void help_information()
     printf("'rmdir' remove directory\n");
     printf("'put' put file into the space\n");
     printf("'get' get file from the space\n");
+    printf("'create' create file into the space\n");
+    printf("'edit' edit file in the space\n");
     printf("'cat' show content\n");
     printf("'status' show status of the space\n");
     printf("'help'\n");
@@ -339,4 +341,78 @@ void status_information(int size)
     printf("used blocks:    %d\n", used_block());
     printf("block size:     %d\n", BLOCK_SIZE);
     printf("free space:     %d\n", size - (used_block() * BLOCK_SIZE));
+}
+
+int create_file(List *list, char *file_name) 
+{
+    folder *current_folder = (folder *)(list->content);
+
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (current_folder->entry_array[i] != NULL)
+        {
+            if (strcmp(((folder *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((folder *)(current_folder->entry_array[i]))->type == 1)
+            {
+
+                return -2;
+            }
+        }
+    }
+
+    void *ptr = NULL;
+    int location;
+    our_malloc(5, &ptr, &location);
+    file *new_file = (file *)ptr;
+    
+    strcpy(new_file->name, file_name);
+    new_file->location = location;
+    new_file->prev = current_folder;
+    new_file->type = 1;
+
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (current_folder->entry_array[i] == NULL)
+        {
+            current_folder->entry_array[i] = new_file;
+            break;
+        }
+    }
+
+    return 0;
+}
+
+int edit_file(List *list, char *file_name)
+{
+    folder *current_folder = (folder *)(list->content);
+    file *target_file;
+    int file_exists = 0;
+    for (int i = 0; i < FOLDER_SIZE; i++)
+    {
+        if (current_folder->entry_array[i] != NULL)
+        {
+            if (strcmp(((folder *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((folder *)(current_folder->entry_array[i]))->type == 1)
+            {
+                file_exists = 1;
+                target_file = ((file *)(current_folder->entry_array[i]));
+            }
+        }
+    }
+    if(!file_exists) return -1;
+
+    printf("Edit file: (input \"exit\" to leave)\n");
+
+    memset(target_file->content, 0, sizeof(target_file->content));
+
+    size_t count = 0;
+    char buf[100] = {0};
+    while(1){
+        fgets(buf, sizeof(buf), stdin);
+        if(strcmp(buf, "exit\n")==0){
+            *(target_file->content+count-1) = '\0';
+            break;
+        }
+        strcpy(target_file->content+count, buf);
+        count+=(strlen(buf));
+    }
+    return 0;
 }
