@@ -55,9 +55,10 @@ int main(void)
         {
             printf("File system file not found!");
             return 0;
-        }   
-        fseek(dump, 0, SEEK_END); 
-        size = ftell(dump);  
+        }
+
+        fseek(dump, 0, SEEK_END);
+        size = ftell(dump);
         fseek(dump, 0, SEEK_SET);
         unsigned char *fs_ptr = malloc(size);
         fread(fs_ptr, sizeof(unsigned char), size, dump);
