@@ -37,41 +37,15 @@ int main(void)
     }
     else
     {
-        // get user input password
-        // if password is correct
-        // retrieve size info from the dump file
-        // fatch the File and decrypt the content
-        // return file system pointer (void *)
-        const char *password = "happyYuko123"; // test password
-        if (!password)
-        { // Need to retrieve from the dump file
-            printf("password is not correct!");
-            return 0;
-        }
-
-        FILE *dump;
-        dump = fopen("my_fs.dump", "rb");
-        if (dump == NULL)
+        unsigned char * fs_ptr;
+        long long now_location = loadDump(&fs_ptr, &size);
+        if(now_location == -1) 
         {
-            printf("File system file not found!");
             return 0;
         }
-
-        fseek(dump, 0, SEEK_END);
-        size = ftell(dump);
-        fseek(dump, 0, SEEK_SET);
-        unsigned char *fs_ptr = malloc(size);
-        fread(fs_ptr, sizeof(unsigned char), size, dump);
-        void *data = fs_ptr + BLOCK_SIZE;
-        long long now_location = ((meta_data *)(data))->head_ptr;
-        size = ((meta_data *)(data))->size;
-        char load_passwoard[20];
-        strcpy(load_passwoard, ((meta_data *)(data))->password);
 
         long long fs_ptr_location = (long long)(fs_ptr);
         long long offset;
-        //  EncryptDecryptContent(sfs_ptr, password);
-        fclose(dump);
         int flag = 0;
         if (now_location > fs_ptr_location)
         {
@@ -90,6 +64,7 @@ int main(void)
         change_element_offset(size, flag, offset);
 
         current = head;
+        ptr = fs_ptr;
     }
     int ret;
     char input[50];
@@ -222,7 +197,7 @@ int main(void)
         }
         else if (strcmp(input, "exit and store img") == 0)
         {
-            exitAndStore(size);
+            exitAndStore(ptr, size);
             break;
         }
         else if (strncmp(input, "create", 6) == 0)

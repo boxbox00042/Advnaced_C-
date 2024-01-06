@@ -304,61 +304,75 @@ void our_free(int type, int mem_location)
 
     clear_bit(byte_buf_mask, mem_location, type);
 }
-void EncryptDecryptContent(unsigned char *content, const unsigned char *password)
+void EncryptDecryptContent(unsigned char *content, int size)
 {
     // input parameter: 1. the content to be translated 2. password
     // use the encryption algorithm to encrypt content
     // encryption algorithm : use XOR ( every content ^ password character by order )
-    int content_length = strlen(content);
-    int password_length = strlen(password);
+    int content_length = size;
+    const unsigned char encrypt_char = 'Y';
     int i = 0;
 
     for (int j = 0; j < content_length; j++)
     {
-        content[j] = content[j] ^ password[i % password_length];
-        i++;
+        content[j] = content[j] ^ encrypt_char; // content[j] = content[j] ^ password[i % password_length];
+        // i++;
     }
 }
-void exitAndStore(int size)
+void exitAndStore(void * fs_ptr, int size)
 {
-    const char *password = "happyYuko123"; // test password
+    printf("Plase input the password of this dump file: (less then 20 words)\n");
+    char input_password[20];
+    scanf(" %s", input_password);
+    void *data = fs_ptr + BLOCK_SIZE;
+    strcpy(((meta_data *)(data))->password, input_password);
+
     FILE *dump;
     dump = fopen("my_fs.dump", "wb");
-    // EncryptDecryptContent(buffer, password);
-    fwrite(buffer, sizeof(unsigned char), size, dump);
+    EncryptDecryptContent(fs_ptr, size);
+    fwrite(fs_ptr, sizeof(unsigned char), size, dump);
     // printf("%p\n", buffer);
     // printf("%p\n",buffer+1024);
     fclose(dump);
 }
 
-unsigned char *loadDump()
+long long loadDump(unsigned char ** fs_ptr, int *size)
 {
-    // get user input password
-    // if password is correct
-    // retrieve size info from the dump file
-    // fatch the File and decrypt the content
-    // return file system pointer (void *)
-    const char *password = "happyYuko123"; // test password
-    if (!password)
-    { // Need to retrieve from the dump file
-        printf("password is not correct!");
-        return NULL;
-    }
+        char input_password[20];
+        printf("Plase input the password: (less then 20 words)\n");
+        scanf(" %s", input_password);
+        fgetc(stdin);
 
-    FILE *dump;
-    dump = fopen("my_fs.dump", "rb");
-    if (dump == NULL)
-    {
-        printf("File system file not found!");
-        return NULL;
-    }
-    size_t size = 102400; // Need to retrieve from the dump file
+        FILE *dump;
+        dump = fopen("my_fs.dump", "rb");
+        if (dump == NULL)
+        {
+            printf("File system file not found!");
+            return -1;
+        }
 
-    char *fs_ptr = malloc(size);
-    fread(fs_ptr, sizeof(unsigned char), size, dump);
+        fseek(dump, 0, SEEK_END);
+        *size = ftell(dump);
+        fseek(dump, 0, SEEK_SET);
+        *fs_ptr = malloc(*size);
+        fread(*fs_ptr, sizeof(unsigned char), *size, dump);
+        EncryptDecryptContent(*fs_ptr, *size);
+        void *data = *fs_ptr + BLOCK_SIZE;
+        long long now_location = ((meta_data *)(data))->head_ptr;
+        *size = ((meta_data *)(data))->size;
+        char load_passwoard[20];
+        strcpy(load_passwoard, ((meta_data *)(data))->password);
 
-    //  EncryptDecryptContent(fs_ptr, password);
-    buffer = fs_ptr;
-    fclose(dump);
-    return buffer;
+        printf("input_password = %s", input_password);
+        printf("load_passwoard = %s", load_passwoard);
+
+        if (strcmp(input_password, load_passwoard) != 0)
+        {
+            printf("password is not correct!\n");
+            return -1;
+        }
+        printf("password is correct!\n");
+        
+        fclose(dump);
+        return now_location;
 }
