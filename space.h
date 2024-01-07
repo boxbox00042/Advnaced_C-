@@ -19,10 +19,10 @@ void clear_bit(unsigned char *mask, int location, int length);
 int used_block();
 void exitAndStore(void * fs_ptr, int size);
 void EncryptDecryptContent(unsigned char *content, int size);
-long long loadDump(unsigned char **fs_ptr, int *size);
+unsigned long long loadDump(unsigned char **fs_ptr, int *size);
 void dump_manage_space(void *ptr, int size);
 void generateRandomString(char * arr, int length);
 void put_metadata_space(int size);
-void change_element_offset(int size,int flag,int offset);
+void change_element_offset(int size,int flag,unsigned long long offset);
 void put_dump_metadata_space(int size);
 #endif

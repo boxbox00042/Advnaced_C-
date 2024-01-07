@@ -38,30 +38,31 @@ int main(void)
     else
     {
         unsigned char * fs_ptr;
-        unsigned long long now_location = loadDump(&fs_ptr, &size);
+        long long now_location = loadDump(&fs_ptr, &size);
         if(now_location == -1) 
         {
             return 0;
         }
 
-        unsigned long long fs_ptr_location = (unsigned long long)(fs_ptr);
-        unsigned long long offset;
+        long long fs_ptr_location = (long long)(fs_ptr);
+        long long offset;
         int flag = 0;
         if (now_location > fs_ptr_location)
         {
             offset = now_location - fs_ptr_location;
             flag = 0;
-
+            head = createDumpFileList(fs_ptr, offset, flag);
         }
         else
         {
             offset = fs_ptr_location - now_location;
             flag = 1;
+            head = createDumpFileList(fs_ptr, offset, flag);
         }
         dump_manage_space(fs_ptr, size);
         put_dump_metadata_space(size);
         change_element_offset(size, flag, offset);
-        head = createDumpFileList(fs_ptr);
+
         current = head;
         ptr = fs_ptr;
     }

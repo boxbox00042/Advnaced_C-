@@ -19,12 +19,13 @@ void dump_manage_space(void *ptr, int size)
     }
     byte_buf_mask = buffer;
 }
-void change_element_offset(int size, int flag, int offset)
+void change_element_offset(int size, int flag, unsigned long long offset)
 {
     unsigned char set_bit = 0x01;
     int i, j;
     set_bit = set_bit << 2;
     i = 2;
+    void *ptr;
     while (i < NUM_BYTE_BUF)
     {
         j = i / 8;
@@ -33,29 +34,13 @@ void change_element_offset(int size, int flag, int offset)
             set_bit = 0x01;
         }
 
-        if (byte_buf_mask[j] | set_bit)
+        if (byte_buf_mask[j] & set_bit)
         {
 
-            void *ptr = buffer + (i * BLOCK_SIZE);
+            ptr = buffer + (i * BLOCK_SIZE);
             if (((folder *)(ptr))->type == 0)
             {
-                if (((folder *)(ptr))->prev != NULL)
-                {
-                    if (flag == 0)
-                    {
 
-                        folder *entry = ((folder *)(ptr))->prev;
-                        entry = (folder *)((long long)entry - offset);
-                        ((folder *)(ptr))->prev = entry;
-                    }
-                    else
-                    {
-
-                        folder *entry = ((folder *)(ptr))->prev;
-                        entry = (folder *)((long long)entry + offset);
-                        ((folder *)(ptr))->prev = entry;
-                    }
-                }
                 for (int k = 0; k < FOLDER_SIZE; k++)
                 {
                     if (((folder *)(ptr))->entry_array[k] != NULL)
@@ -63,40 +48,17 @@ void change_element_offset(int size, int flag, int offset)
                         if (flag == 0)
                         {
                             folder *entry = ((folder *)(ptr))->entry_array[k];
-                            entry = (folder *)((long long)entry - offset);
+                            entry = (folder *)((unsigned long long)entry - offset);
                             ((folder *)(ptr))->entry_array[k] = entry;
                         }
                         else
                         {
                             folder *entry = ((folder *)(ptr))->entry_array[k];
-                            entry = (folder *)((long long)entry + offset);
+                            entry = (folder *)((unsigned long long)entry + offset);
                             ((folder *)(ptr))->entry_array[k] = entry;
                         }
                     }
                 }
-                i++;
-                set_bit = set_bit << 1;
-                continue;
-            }
-            if (((folder *)(ptr))->type == 1)
-            {
-                if (flag == 0)
-                {
-                    folder *entry = ((file *)(ptr))->prev;
-                    entry = (folder *)((long long)entry - offset);
-                    ((file *)(ptr))->prev = entry;
-                }
-                else
-                {
-
-                    folder *entry = ((file *)(ptr))->prev;
-                    entry = (folder *)((long long)entry + offset);
-                    ((file *)(ptr))->prev = entry;
-                }
-
-                i++;
-                set_bit = set_bit << 1;
-                continue;
             }
         };
         i++;
@@ -129,12 +91,14 @@ void manage_space(void *ptr, int size)
 void put_dump_metadata_space(int size)
 {
     void *data = buffer + BLOCK_SIZE;
-    ((meta_data*)(data))->head_ptr = (long long)buffer;
+    ((meta_data *)(data))->head_ptr = (unsigned long long)buffer;
 }
-void generateRandomString(char * arr, int length) {
+void generateRandomString(char *arr, int length)
+{
     srand(5);
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++)
+    {
         char randomchar = rand() % 128;
         arr[i] = randomchar;
     }
@@ -145,7 +109,7 @@ void put_metadata_space(int size)
     int location;
     our_malloc(1, &ptr, &location);
     meta_data *data = ptr;
-    data->head_ptr = (long long)buffer;
+    data->head_ptr = (unsigned long long)buffer;
 }
 void free_total_memory_space()
 {
@@ -317,7 +281,7 @@ void EncryptDecryptContent(unsigned char *content, int size)
         i++;
     }
 }
-void exitAndStore(void * fs_ptr, int size)
+void exitAndStore(void *fs_ptr, int size)
 {
     printf("Plase input the password of this dump file: (less then 15 words)\n");
     char input_password[16];
@@ -332,39 +296,39 @@ void exitAndStore(void * fs_ptr, int size)
     fclose(dump);
 }
 
-long long loadDump(unsigned char ** fs_ptr, int *size)
+unsigned long long loadDump(unsigned char **fs_ptr, int *size)
 {
-        char input_password[16];
-        printf("Plase input the password: (less then 15 words)\n");
-        scanf(" %s", input_password);
-        fgetc(stdin);
+    char input_password[16];
+    printf("Plase input the password: (less then 15 words)\n");
+    scanf(" %s", input_password);
+    fgetc(stdin);
 
-        FILE *dump;
-        dump = fopen("my_fs.dump", "rb");
-        if (dump == NULL)
-        {
-            printf("File system file not found!");
-            return -1;
-        }
+    FILE *dump;
+    dump = fopen("my_fs.dump", "rb");
+    if (dump == NULL)
+    {
+        printf("File system file not found!");
+        return -1;
+    }
 
-        fseek(dump, 0, SEEK_END);
-        *size = ftell(dump);
-        fseek(dump, 0, SEEK_SET);
-        *fs_ptr = malloc(*size);
-        fread(*fs_ptr, sizeof(unsigned char), *size, dump);
-        void *data = *fs_ptr + BLOCK_SIZE;
-        EncryptDecryptContent(*fs_ptr, *size);
-        long long now_location = ((meta_data *)(data))->head_ptr;
-        char load_passwoard[16];
-        strcpy(load_passwoard, ((meta_data *)(data))->password);
+    fseek(dump, 0, SEEK_END);
+    *size = ftell(dump);
+    fseek(dump, 0, SEEK_SET);
+    *fs_ptr = malloc(*size);
+    fread(*fs_ptr, sizeof(unsigned char), *size, dump);
+    void *data = *fs_ptr + BLOCK_SIZE;
+    EncryptDecryptContent(*fs_ptr, *size);
+    unsigned long long now_location = ((meta_data *)(data))->head_ptr;
+    char load_passwoard[16];
+    strcpy(load_passwoard, ((meta_data *)(data))->password);
 
-        if (strcmp(input_password, load_passwoard) != 0)
-        {
-            printf("password is not correct!\n");
-            return -1;
-        }
-        printf("password is correct!\n");
-        
-        fclose(dump);
-        return now_location;
+    if (strcmp(input_password, load_passwoard) != 0)
+    {
+        printf("password is not correct!\n");
+        return -1;
+    }
+    printf("password is correct!\n");
+
+    fclose(dump);
+    return now_location;
 }

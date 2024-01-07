@@ -15,7 +15,6 @@ List *createList()
 
         ((folder *)(ptr))->type = 0;
         strcpy(((folder *)(ptr))->name, "/");
-        ((folder *)(ptr))->prev = NULL;
         ((folder *)(ptr))->location = location;
         for (int i = 0; i < FOLDER_SIZE; i++)
         {
@@ -25,7 +24,7 @@ List *createList()
 
     return new_list;
 }
-List *createDumpFileList(unsigned char *p, long long offset, int flag)
+List *createDumpFileList(unsigned char *p)
 {
     List *new_list;
     new_list = (List *)malloc(sizeof(List));
@@ -56,7 +55,6 @@ int build_directory(List *list, char *name)
     {
         p->entry_array[i] = NULL;
     }
-    p->prev = ((folder *)(list->content));
 
     for (int i = 0; i < FOLDER_SIZE; i++)
     {
@@ -230,7 +228,6 @@ int put_file(List *list, char *file_name) // location跟size跟prev
     file *new_file = (file *)ptr;
     strcpy(new_file->name, file_name);
     new_file->location = location;
-    new_file->prev = current_folder;
     new_file->type = 1;
     fseek(fp, 0, SEEK_END);
     long fsize = ftell(fp);
@@ -348,7 +345,6 @@ int create_file(List *list, char *file_name)
     
     strcpy(new_file->name, file_name);
     new_file->location = location;
-    new_file->prev = current_folder;
     new_file->type = 1;
 
     for (int i = 0; i < FOLDER_SIZE; i++)
