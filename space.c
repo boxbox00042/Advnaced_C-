@@ -1,8 +1,5 @@
 #include "main.h"
 
-// unsigned char buffer[ELEMENT_SIZE * NUM_BYTE_BUF];
-// unsigned char byte_buf_mask[CEIL_DIVIDE] = {0};
-
 unsigned char *buffer;
 int NUM_BYTE_BUF;
 int CEIL_DIVIDE;
@@ -30,7 +27,6 @@ void change_element_offset(int size, int flag, int offset)
     i = 2;
     while (i < NUM_BYTE_BUF)
     {
-
         j = i / 8;
         if (((i - 8) % 8 == 0))
         {
@@ -132,21 +128,24 @@ void manage_space(void *ptr, int size)
 
 void put_dump_metadata_space(int size)
 {
-
     void *data = buffer + BLOCK_SIZE;
     ((meta_data*)(data))->head_ptr = (long long)buffer;
-    ((meta_data*)(data))->size = size;
+}
+void generateRandomString(char * arr, int length) {
+    srand(5);
+
+    for (int i = 0; i < length; i++) {
+        char randomchar = rand() % 128;
+        arr[i] = randomchar;
+    }
 }
 void put_metadata_space(int size)
 {
-
     void *ptr = NULL;
     int location;
     our_malloc(1, &ptr, &location);
     meta_data *data = ptr;
     data->head_ptr = (long long)buffer;
-    data->size = size;
-    strcpy(data->password, "happyYuko123");
 }
 void free_total_memory_space()
 {
@@ -247,7 +246,6 @@ int test_location(unsigned char *mask, int mask_length)
         }
         if (total == mask_length)
         {
-            //     printf("i = %d,total=%d\n", i, total);
             return i - total + 1;
         }
 
@@ -264,7 +262,6 @@ int test_location(unsigned char *mask, int mask_length)
 
 void set_bit(unsigned char *mask, int location, int length)
 {
-    //  printf("location is = %d\n", location);
     unsigned char set_bit = 0x01;
     int i, j;
     set_bit = set_bit << (location % 8);
@@ -301,28 +298,29 @@ void clear_bit(unsigned char *mask, int location, int length)
 
 void our_free(int type, int mem_location)
 {
-
     clear_bit(byte_buf_mask, mem_location, type);
 }
 void EncryptDecryptContent(unsigned char *content, int size)
 {
-    // input parameter: 1. the content to be translated 2. password
+    // input parameter: 1. the content to be translated 2. size
     // use the encryption algorithm to encrypt content
-    // encryption algorithm : use XOR ( every content ^ password character by order )
+    // encryption algorithm : use XOR ( every content ^ encrypt keys by order )
     int content_length = size;
-    const unsigned char encrypt_char = 'Y';
+    int encrypt_keys_length = 1000;
     int i = 0;
+    char encrypt_keys[1000];
+    generateRandomString(encrypt_keys, 1000);
 
     for (int j = 0; j < content_length; j++)
     {
-        content[j] = content[j] ^ encrypt_char; // content[j] = content[j] ^ password[i % password_length];
-        // i++;
+        content[j] = content[j] ^ encrypt_keys[i % encrypt_keys_length];
+        i++;
     }
 }
 void exitAndStore(void * fs_ptr, int size)
 {
-    printf("Plase input the password of this dump file: (less then 20 words)\n");
-    char input_password[20];
+    printf("Plase input the password of this dump file: (less then 15 words)\n");
+    char input_password[16];
     scanf(" %s", input_password);
     void *data = fs_ptr + BLOCK_SIZE;
     strcpy(((meta_data *)(data))->password, input_password);
@@ -331,15 +329,13 @@ void exitAndStore(void * fs_ptr, int size)
     dump = fopen("my_fs.dump", "wb");
     EncryptDecryptContent(fs_ptr, size);
     fwrite(fs_ptr, sizeof(unsigned char), size, dump);
-    // printf("%p\n", buffer);
-    // printf("%p\n",buffer+1024);
     fclose(dump);
 }
 
 long long loadDump(unsigned char ** fs_ptr, int *size)
 {
-        char input_password[20];
-        printf("Plase input the password: (less then 20 words)\n");
+        char input_password[16];
+        printf("Plase input the password: (less then 15 words)\n");
         scanf(" %s", input_password);
         fgetc(stdin);
 
@@ -356,15 +352,11 @@ long long loadDump(unsigned char ** fs_ptr, int *size)
         fseek(dump, 0, SEEK_SET);
         *fs_ptr = malloc(*size);
         fread(*fs_ptr, sizeof(unsigned char), *size, dump);
-        EncryptDecryptContent(*fs_ptr, *size);
         void *data = *fs_ptr + BLOCK_SIZE;
+        EncryptDecryptContent(*fs_ptr, *size);
         long long now_location = ((meta_data *)(data))->head_ptr;
-        *size = ((meta_data *)(data))->size;
-        char load_passwoard[20];
+        char load_passwoard[16];
         strcpy(load_passwoard, ((meta_data *)(data))->password);
-
-        printf("input_password = %s", input_password);
-        printf("load_passwoard = %s", load_passwoard);
 
         if (strcmp(input_password, load_passwoard) != 0)
         {

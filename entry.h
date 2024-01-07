@@ -21,8 +21,7 @@ typedef struct type_file
 typedef struct meta
 {
     long long head_ptr;
-    int size;
-    char password[20];
+    char password[16];
 } meta_data;
 typedef struct node_info
 {
