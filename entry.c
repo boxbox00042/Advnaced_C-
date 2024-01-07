@@ -35,24 +35,6 @@ List *createDumpFileList(unsigned char *p, long long offset, int flag)
         new_list->prev = NULL;
         new_list->next = NULL;
         new_list->content = p + (2 * BLOCK_SIZE);
-      /*  for (int i = 0; i < FOLDER_SIZE; i++)
-        {
-            if (((folder *)(new_list->content))->entry_array[i] != NULL)
-            {
-                if (flag == 0)
-                {
-                    folder *entry = ((folder *)(new_list->content))->entry_array[i];
-                    entry = (folder *)((long long)entry - offset);
-                    ((folder *)(new_list->content))->entry_array[i] = entry;
-                }
-                else
-                {
-                    folder *entry = ((folder *)(new_list->content))->entry_array[i];
-                    entry = (folder *)((long long)entry + offset);
-                    ((folder *)(new_list->content))->entry_array[i] = entry;
-                }
-            }
-        }*/
     }
 
     return new_list;

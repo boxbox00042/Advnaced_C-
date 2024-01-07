@@ -72,8 +72,6 @@ int main(void)
     help_information();
     while (1)
     {
-        //  print_buffer_status();
-
         print_directory(current, head);
         fgets(input, sizeof(input), stdin);
 
