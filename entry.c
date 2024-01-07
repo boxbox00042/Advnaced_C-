@@ -274,7 +274,7 @@ int get_file(List *list, char *file_name)
     sprintf(whole_filepath, "./dump/%s", file_name);
 
     output_file = fopen(whole_filepath, "w");
-    fwrite(target_file->content, sizeof(char), sizeof(target_file->content), output_file);
+    fwrite(target_file->content, sizeof(char), strlen(target_file->content), output_file);
 
     fclose(output_file);
 }
@@ -336,7 +336,6 @@ int create_file(List *list, char *file_name)
         {
             if (strcmp(((folder *)(current_folder->entry_array[i]))->name, file_name) == 0 && ((folder *)(current_folder->entry_array[i]))->type == 1)
             {
-
                 return -2;
             }
         }
