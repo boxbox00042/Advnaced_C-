@@ -1,4 +1,4 @@
-# Advanced C project:   
+ # Advanced C project:   
 本專案是一個模擬 Linux 環境下的檔案系統，允許使用者透過 Command Line 進行檔案管理，例如建立、編輯、儲存與加密檔案。  
 在使用系統前，使用者需選擇：  
 1.載入現有的 dump 檔案，以恢復先前的檔案系統狀態。  
@@ -13,7 +13,7 @@
 # 基本操作如下:  
 'ls' list directory  
 'cd' change directory  
-'rm' remove file
+'rm' remove file  
 'mkdir' make directory  
 'rmdir' remove directory  
 'put' put file into the space  
