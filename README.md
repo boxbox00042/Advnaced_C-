@@ -1,5 +1,5 @@
-# Advanced_C  
-# 本專案是一個自訂的命令列環境與檔案系統，允許使用者透過Command Line進行檔案管理，例如建立、編輯、儲存與加密檔案。
+# Advanced C project  
+本專案是一個自訂的命令列環境與檔案系統，允許使用者透過Command Line進行檔案管理，例如建立、編輯、儲存與加密檔案。  
 
 # 基本操作如下:  
 'ls' list directory  
