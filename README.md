@@ -23,8 +23,8 @@
 'rename' rename file name in the space  
 'cat' show content  
 'status' show status of the space  
-'help' print help information
-'exit and store img'  
+'help' print help information  
+'exit and store img'  store dump file
 # 示範影片:  
 https://youtu.be/HsRZ85Nur8g?si=nA_Y80cAS1He3IIa
 
